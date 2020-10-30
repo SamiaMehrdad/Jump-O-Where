@@ -1,0 +1,48 @@
+/* defining all purpose colors as variables */
+:root {
+    --backColor: #222; --pegBody: #b97; --pegSelect: #fd9;
+    --board: #ba9; --borders: #431; --overlay: rgba(0,0,0,.5);
+  }
+  @font-face {
+    font-family: 'HennyPeny';
+    src: url('./HennyPenny-Regular.ttf');
+  }
+body{
+    user-select: none;
+    background-color: var(--backColor);
+    text-align: center;
+
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS';
+}
+
+h1, h2{
+    font-family: 'HennyPeny';
+    color: var(--pegBody);
+    margin: 5% 0 0 0;
+    font-size: 4vw;
+    text-shadow: 0 0 30px #EDC;
+    display: inline-block;
+}
+h1{
+    font-size: 5vw;
+}
+
+#title{
+    cursor: default;
+    display: inline-block;
+    margin: 5%;
+}
+#help{
+    cursor: pointer;
+    margin: -10%;
+    text-decoration-line: underline;
+    letter-spacing: .8vw;
+    font-size: 1.5vw;
+    visibility: hidden;
+    color: var(--pegBody);
+    
+}
+#help:hover{
+    color: var(--pegSelect);
+}
+#title:hover > #help { visibility: visible; }
