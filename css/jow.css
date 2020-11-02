@@ -11,33 +11,53 @@ body{
     user-select: none;
     background-color: var(--backColor);
     text-align: center;
-
+    align-items: center;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS';
+    overflow: hidden;
 }
 
 h1, h2{
     font-family: 'HennyPeny';
     color: var(--pegBody);
-    margin: 5% 0 0 0;
-    font-size: 4vw;
-    text-shadow: 0 0 30px #EDC;
+    margin: 1vh 0 0 0;
+    font-size: calc(2vw + 10px);
+    text-shadow: 0 0 4px #000, 0 0 20px #edc;
     display: inline-block;
 }
 h1{
-    font-size: 5vw;
+    font-size: calc( 3vw + 20px);
 }
+.bigTxt{
 
+}
+#shade{
+    position: fixed;
+    /* display: inline-block; */
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    background-color: rgba(0,0,0,.5);
+}
+#band{
+    position: absolute;
+    height: 100px;
+    width: 100%;
+    top: calc(40vh + 12vw);
+    background-color: var(--pegBody);
+    z-index: -1;
+}
 #title{
     cursor: default;
     display: inline-block;
-    margin: 5%;
+    margin: 4%;
 }
 #help{
     cursor: pointer;
-    margin: -10%;
+    margin: -5%;
     text-decoration-line: underline;
     letter-spacing: .8vw;
-    font-size: 1.5vw;
+    font-size: calc(1.5vw+15px);
     visibility: hidden;
     color: var(--pegBody);
     
@@ -46,3 +66,162 @@ h1{
     color: var(--pegSelect);
 }
 #title:hover > #help { visibility: visible; }
+
+#popup{
+    width: 60vw;
+    /* height: 40vw; */
+    height: calc( 80vh - 10vw );
+    right: 20vw;
+    background-color: var(--pegBody);
+    border-radius: 20px;
+    box-shadow: 0 10px 20px #000;
+    overflow: hidden;
+    position: fixed;
+    top: 20%;
+    /* display: block; */
+    display: none;
+}
+
+#popup-bottom{
+    width: 100%;
+    height: 40%;
+    background-color: var(--backColor);
+    position:absolute; 
+    bottom:0;
+    border-top: 1px solid #ec9;
+}
+#popLevelNum{
+    color: #fff;
+}
+#popLevelName{
+    color: #fff;
+}
+#btAgain{
+
+}
+.btn{
+    display: inline-block;
+    width: 20%;
+    height: 30%;
+    border-radius: 10px;
+    border: none;
+    margin: 10% 5% ;
+    top: 20%;
+    background-color: var(--borders);
+    color: var(--pegSelect);
+    font-size: calc(1vw + 5px);
+    box-shadow: 0 4px 10px #000;
+    cursor: pointer;
+    transition: all .5s;
+    outline: none;
+    background-image: -webkit-linear-gradient(top, rgba(255,255,255,1), rgba(255,255,255,0));
+    background-image: linear-gradient(top, rgba(255,255,255,1),#777, rgba(255,255,255,0));
+}
+
+.btn:hover {
+    /* background-color: var(--board); */
+    background-color: #850;
+    color: #fff;
+    box-shadow: 0 4px 10px #000;
+
+}
+.btn:active{
+    background-color: #321;
+    color:  var(--borders);
+}
+/* #board #msgPanel{
+    display: inline-block;
+    width: 40vw;
+    height: 40vw;
+
+} */
+#wrap{
+    /* display: block; */
+    width:  90vw;
+    /* height: 80vh; */
+    height: 400px;
+    /* outline: 1px solid #ff0; */
+    margin: 0 auto;
+    text-align: center;
+
+    /* align-items: center;
+    align-content: center; */
+}
+#board , #msgPanel {
+    display: inline-block;
+    /* width: 30vw; */
+    width: max( 20vw , 400px);
+    /* height: 30vw; */
+    height:  max( 20vw , 400px);
+    /* border: 1px solid #fff; */
+    margin: 0 3%;
+    padding: 0;
+    text-align: center;
+}
+#levelNum , #levelName {
+   /*position: absolute; /* Strange! All other values push msPanel down! just absolute works*/
+    /* position: fixed; */
+    margin: 10px 20% 0 5%;
+    color: var(--board);
+    display: inline-block;
+}
+#levelNum{
+    font-size: 60px;
+    top: 30%;
+    /* margin: 100px ; */
+}
+#levelName{
+    font-size: 40px;
+    top: 40%;
+    /* margin: -100px 0 0 0; */
+    font-family: 'HennyPeny';
+}
+
+#board{
+    border-radius: 20px;
+    background-color: #858585;
+    box-shadow: 10px 10px 25px #000;
+    background-image: url("../img/JOWboard.png"); 
+    background-repeat: repeat;
+}
+
+#innerBoard{
+    /* outline: 1px solid #0ff; */
+    width: 80%;
+    height: 80%;
+    margin: 10%;
+}
+.cell{
+    /* outline: 1px solid #000; */
+    width: 25%;
+    height: 25%;
+}
+.cellImg{
+    width: 25%;
+    height: 25%;
+    background-image: url("../img/JOWcells.png"); 
+    background-size: cover;
+    background-position-x: 0;
+    display: inline-block;
+    border-radius: 40px;
+    /* margin: 0px 0 0 -1px; */
+    /* padding: -10px; */
+    /* border: 1px solid red; */
+    /* outline: 1px dotted green; */
+}
+.cellImg:hover{
+    /* outline: 2px solid #bbb; */
+    filter: brightness(1.1);
+}
+#c1{
+    background-position-x: 66.66%;  
+}
+#c11{background-position-x: 33.33%;}
+#c13{background-position-x: 99%;}
+/* #msgPanel{
+    display: inline-block;
+    width: 400px;
+    height: 400px;
+    border: 1px solid #fff;
+    margin: 0 3%;
+} */
