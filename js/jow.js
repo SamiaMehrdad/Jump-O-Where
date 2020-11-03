@@ -15,7 +15,6 @@
 ///NOTE: For this game addressing cells by row - column is less efficient
 // so cell addressing is doing by single index
 
-///TODO: game play logic
 ///TODO: Show win/lose popup
 ///TODO: Show help popup
 ///TODO: adding sounds
@@ -25,8 +24,8 @@ const TOTALCELLS = BOARDDIM * BOARDDIM;
  // Possible state of each single cell
 const CELLSTATE = {
                     EMPTY: 0,
+                    HILIGHT: 1, // it is potential move destination
                     PEG:  2, // it has peg 
-                    HILIGHT: 1, // it is potential move target
                     PICKED: 3, // it has peg and is picked to move
                   };
 const GAMESTATUS = {
@@ -34,7 +33,7 @@ const GAMESTATUS = {
                     PASSED: 1,
                     FAILED: 2,
                     PAUSED: 3,
-                    FINISHED: 4,
+                    FINISHED: 4, //all levels are passed
 }
 // Two possible move for each cell${i}
 const POSSIBLEMOVES = [ [2,8], [3,9], [0,10], [1,11],
@@ -42,7 +41,7 @@ const POSSIBLEMOVES = [ [2,8], [3,9], [0,10], [1,11],
                         [0,10], [1,11], [2,8], [3,9],
                         [4,14], [5,15], [6,12], [7,13]
                       ];
-// Two possible target peg cll for each cell${i}
+// Two possible target peg cell for each cell${i}
 const TARGETPEGS = [    [1,4], [2,5], [1,6], [2,7],
                         [5,8], [6,9], [5,10], [6,11],
                         [4,9], [5,10], [6,9], [7,10],
@@ -55,7 +54,7 @@ const LEVELS = [  // 20 levels name and init patterns
   ["Windmill",    "0100011111100010"],  //4
   ["Prisoner",    "1111101110011111"],  //5
   ["Sumo",        "0110111101100110"],  //6
-  ["Hi buddy",    "0001111111100110"],  //7
+  ["Hi buddy!",    "0001111111100110"],  //7
   ["Light bulb",  "1111100101100110"],  //8
   ["Old phone",   "1111011010011111"],  //9
   ["Mad gorilla", "1001111101101001"],  //10
@@ -64,11 +63,11 @@ const LEVELS = [  // 20 levels name and init patterns
   ["Bulldog",     "0110011010011001"],  //13
   ["Entropy",     "1101011010110110"],  //14
   ["Deepness",    "1011101110111111"],  //15
-  ["Cross",       "0110111111100110"],  //16
+  ["Cross",       "0110111111110110"],  //16
   ["Boomerang",   "1110111100110011"],  //17
-  ["scorpion",    "0101011100101110"],  //18
-  ["basket",      "0110100111111111"],  //19
-  ["boss",        "0111110111111111"]   //20
+  ["Scorpion",    "0101011100101110"],  //18
+  ["Basket",      "0110100111111111"],  //19
+  ["The Last Rock","0111110111111111"]   //20
 ];
 
 const SPRITRATIO = 33.33; // used for rendering proper image of cells
@@ -81,20 +80,17 @@ let game =
   totalPegs: 16,
   tries: 0,
   time: 0,
-
 };
-// Defining main object prototype as cell
+// Defining main object prototype called cell
 class cell  {
   constructor(index) {
     this.index = index;
     this.hasPeg = false;
     this.landing = false;
   }
+}
 
-
-};
-
-let cells = [];
+let cells = []; // this array will keep TOTALCELLS of cell object
 
 /*----- cached element references -----------------------------------*/
 // g is main graphics object including render() , createCells() and cached elements 
@@ -137,13 +133,15 @@ const g = {
   } ,
   // main render function -------------------------------------------
   render : () => {
-    // console.log('Render fired.');
+     console.log('Render fired.');
     
-    for( let i = 0; i < TOTALCELLS; i++ )
+    for( let i = 0; i < TOTALCELLS; i++ ) // render pegs and landing cells
     {
-      g.cellEls[i].style.backgroundPositionX = `${SPRITRATIO * cells[i].hasPeg *2 }%`;
+      g.cellEls[i].style.backgroundPositionX = `${SPRITRATIO * cells[i].hasPeg *2 + 
+                                                  SPRITRATIO * cells[i].landing  }%`;
+      
     }
-    if(game.selectedCell)
+    if(game.selectedCell != null ) //CAUTION about index 0
       g.cellEls[game.selectedCell].style.backgroundPositionX = `${SPRITRATIO * CELLSTATE.PICKED }%`;
   } ,
 
@@ -170,11 +168,12 @@ function cellClicked(e)
   let cellIndex = parseInt(e.target.id.substring(1));
   // first clear all landing cells
   cells.forEach( (cell)=>cell.landing = false );
-  if( ! cells[ cellIndex ].hasPeg ) // if clicked cell is empty, it may be a target point
+  if( ! cells[ cellIndex ].hasPeg ) // if clicked cell is empty, it may be a destination point
       tryToMoveTo( cellIndex );
   else  // there is peg in clicked cell, o it should be elected 
   {
     game.selectedCell = cellIndex;
+    setDestinations( cellIndex );
     console.log("Select cell"+cellIndex );
   }
   g.render();
@@ -207,7 +206,7 @@ function initGame ()
   }
   console.log(cells);
   g.createCellsByImg(); ///test
-  game.level = 1; /// TODO: read saved level from file
+  game.level = 19; /// TODO: read saved level from file
   initLevel();
   g.initLevel(); // to render level number and name
   g.render();
@@ -231,38 +230,19 @@ function initLevel()
 }
 
 /**-------------------------------
- *  findLandingCell() 
- *  This function will check if peg in given index 
- *  has any moving target cell
- *  Return : an array of 1,2 or 0 cell index(es)
- *-------------------------------*/
-function findLandingCell( index ) ///BUG
-{
-  let result = []; 
-  console.log("Check landing");
-  for( let i = 0; i < 2; i++) // because there is maximum possibility of 2
-    if ( cells[index].hasPeg && TARGETPEGS[index][i].hasPeg && !POSSIBLEMOVES[index][i].hasPeg )
-      {
-        console.log(" Has a landing cell in " , i );
-        result[i] = POSSIBLEMOVES[index];
-      }
-  return result;    
-}
-
-/**-------------------------------
  *  tryToMoveTo
  *  this function will be called when clickedCellIndex IS EMPTY
  *-------------------------------*/
 function tryToMoveTo( clickedCellIndex )
 {
-  if( game.selectedCell ) // if there is a selected peg check to move it if it's possible
-  {
+  if( game.selectedCell != null ) // if there is a selected peg check to move it if it's possible
+  {                               //CAUTION: using !game.selectedCell will disable cell0
     let src = game.selectedCell;
     for(let i =0; i < 2; i++ ) // try possibility for both direction
-      // check if clicked cell is a possible move for selected peg and there is a target peg between
+    // check if clicked cell is a possible move for selected peg and there is a target peg between
       if( POSSIBLEMOVES[src][i] === clickedCellIndex && cells[TARGETPEGS[src][i]].hasPeg )
       { 
-        console.log("try to move A");
+        console.log("try to move " + i);
         //move peg from selected to dest
         cells[clickedCellIndex].hasPeg = true;
         cells[src].hasPeg = false;
@@ -273,6 +253,21 @@ function tryToMoveTo( clickedCellIndex )
       }
   }
   game.selectedCell = null ; // finally clear selection
+}
+/**-------------------------------
+ *  setDestinations(cellIndex) 
+ *  This function set landing property of cells if they can
+ *  be destination for selected cell
+ *-------------------------------*/
+function setDestinations( cellIndex )
+{
+  for(let i = 0; i < 2; i++ )
+    {
+      let destCell = cells[ POSSIBLEMOVES [ cellIndex ][i] ];
+      let targetCell = cells[ TARGETPEGS [ cellIndex ][i] ];
+      if( ! destCell.hasPeg && targetCell.hasPeg )
+        destCell.landing = true;
+    }
 }
 /**-------------------------------
  *  checkPass
@@ -291,7 +286,6 @@ function checkPass()
 function checkFail()
 {
   for( let i = 0; i < TOTALCELLS; i++ )
-   // if( findLandingCell(i).length > 0 )
    for( let j = 0; j < 2; j++ )
    {
    //  console.log(`${i}: pig = ${cells[i].hasPeg}, target = ${cells[TARGETPEGS[i][j]].hasPeg}, dest = ${cells[POSSIBLEMOVES[i][j]].hasPeg}`);
