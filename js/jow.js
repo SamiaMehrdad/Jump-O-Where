@@ -16,10 +16,12 @@
 // so cell addressing is doing by single index
 
 ///BUG: initLevel() does not reset selection and highlights
-///TODO: re-adjust code to fit in MVC pattern
-///TODO: Show win/lose popup
+///TODO: Implement level.start
 ///TODO: Show help popup
 ///TODO: adding sounds
+///TODO: check for js/css disabled
+///TODO: disable right-click
+
 /*----- constants ---------------------------------------------------*/
 const BOARDDIM = 4; // number of 
 const TOTALCELLS = BOARDDIM * BOARDDIM;
@@ -56,7 +58,7 @@ const LEVELS = [  // 20 levels name and init patterns
   ["Windmill",    "0100011111100010"],  //4
   ["Prisoner",    "1111101110011111"],  //5
   ["Sumo",        "0110111101100110"],  //6
-  ["Hi buddy!",    "0001111111100110"],  //7
+  ["Hi buddy!",   "0001111111100110"],  //7
   ["Light bulb",  "1111100101100110"],  //8
   ["Old phone",   "1111011010011111"],  //9
   ["Mad gorilla", "1001111101101001"],  //10
@@ -74,8 +76,7 @@ const LEVELS = [  // 20 levels name and init patterns
 
 const SPRITRATIO = 33.33; // used for rendering proper image of cells
 /*----- app's state (variables) -------------------------------------*/
-let game = 
-{
+const game = {
   selectedCell: null,
   level: 0,
   started: false,
@@ -96,17 +97,21 @@ class cell  {
 let cells = []; // this array will keep TOTALCELLS of cell object
 
 /*----- cached element references -----------------------------------*/
-let shadeEl = getElemById("shade");
-let popupEl = getElemById("popup");
+const shadeEl = getElemById("shade");
+const popupEl = getElemById("popup");
+const popMsgEl = getElemById("popMsg");
+const popLevNameEl = getElemById("popLevelName");
+const popLevNumEl = getElemById("popLevelNum");
+const btNextEl = getElemById("btNext");
+const levelNameEl =  getElemById("levelName");
+const levelNumEl =   getElemById("levelNum");
 // g is main graphics object including render() , createCells() and cached elements 
 // Every graphical elements are cached inside g object, like g.cellEl[i]
 
 const g = { 
  
    cellEls : [], 
-   boardEl :      getElemById("innerBoard"),
-   levelNameEl :  getElemById("levelName"),
-   levelNumEl :   getElemById("levelNum"),
+   boardEl : getElemById("innerBoard"),
    cellBuffer: { },
   // create cell elements method A based on images------------------
   createCellsByImg : () => {
@@ -131,9 +136,9 @@ const g = {
     
   } ,
   // rendering starting point of each level -------------------------
-  initLevel: () => {
-    g.levelNameEl.innerText = LEVELS[game.level][0];
-    g.levelNumEl.innerText = `Level ${game.level+1}`;
+  renderLevelLables: () => {
+    levelNameEl.innerText = LEVELS[game.level][0];
+    levelNumEl.innerText = `Level ${game.level+1}`;
   } ,
   // main render function -------------------------------------------
   render : () => {
@@ -142,18 +147,31 @@ const g = {
     {
       g.cellEls[i].style.backgroundPositionX = `${SPRITRATIO * cells[i].hasPeg *2 + 
                                                   SPRITRATIO * cells[i].landing  }%`;
-      
     }
     //render selected peg, if there is any
     if(game.selectedCell != null ) //CAUTION about index 0
       g.cellEls[game.selectedCell].style.backgroundPositionX = `${SPRITRATIO * CELLSTATE.PICKED }%`;
+    if( game.status !== GAMESTATUS.PLAYING )
+      g.showPanel();
   } ,
+  
   // show popup panels in case ---------------------------------------
   showPanel: () => {
-    if( game.status === GAMESTATUS.PASSED )
-      alert (" LEVEL PASSED ");
-    if( game.status === GAMESTATUS.FAILED )
-      alert (" LEVEL FAILED ");  
+    if( game.status == GAMESTATUS.PASSED )
+    {
+      popMsgEl.innerText = "PASSED";
+      btNextEl.style.display = "inline-block";
+    }
+    if( game.status == GAMESTATUS.FAILED )
+    {
+      popMsgEl.innerText = "FAILED";
+      btNextEl.style.display = "none";   
+    }
+    // popMsgEl.innerText = game.status === GAMESTATUS.PASSED ? "PASSED" : "FAILED";
+    popLevNameEl.innerText = LEVELS[ game.level ][0];
+    popLevNumEl.innerText = `Level ${game.level+1}`;
+    shadeEl.style.display = "block";
+    popupEl.classList.add("show");
   },
 
 };
@@ -169,7 +187,7 @@ function initEvents()
 {
   setEvent("help", "click", showHelp );
   setEvent("levelName", "mouseenter",showResetLevel);
-  setEvent("levelName", "mouseleave",()=> g.initLevel() );
+  setEvent("levelName", "mouseleave",()=> g.renderLevelLables() );
   setEvent("levelName", "click",initLevel);
   setEvent("btAgain", "click",btAgainClicked);
   setEvent("btNext", "click",btNextClicked);
@@ -192,16 +210,11 @@ function cellClicked(e)
     game.selectedCell = cellIndex;
     setDestinations( cellIndex );
   }
-  g.render();
+  // Now check if level is passed or failed 
   game.status = checkPass();
   if( game.status === GAMESTATUS.PLAYING )
     game.status = checkFail();
-  if( game.status !== GAMESTATUS.PLAYING ) 
-    {
-     // g.showPanel();
-      g.showWinLose();
-      initLevel();
-    }
+  g.render(); 
 }
 
 /**-------------------------------
@@ -221,7 +234,7 @@ function initGame ()
   g.createCellsByImg(); ///test
   game.level = 0; /// TODO: read saved level from file
   initLevel();
-  g.initLevel(); // to render level number and name
+  g.renderLevelLables(); // to render level number and name
   g.render();
 }
 /**-------------------------------
@@ -237,8 +250,12 @@ function initLevel()
     let peg = parseInt(LEVELS[game.level][1][i]);
     cells[i].hasPeg = peg; 
     game.totalPegs += peg;
+    cells[i].landing = null;
   }
+  game.selectedCell = null;
   game.status = GAMESTATUS.PLAYING;
+  game.started = false;
+  g.renderLevelLables();
   g.render();
 }
 
@@ -261,6 +278,7 @@ function tryToMoveTo( clickedCellIndex )
         // remove target peg
         cells[TARGETPEGS[src][i]].hasPeg = false;
         game.totalPegs--;
+        game.started = true;
         break;
       }
   }
@@ -312,7 +330,8 @@ function checkFail()
  *-------------------------------*/
 function btAgainClicked()
 {
-
+  initLevel();
+  g.render();
   closePopup();
 }
 
@@ -322,28 +341,22 @@ function btAgainClicked()
  *-------------------------------*/
 function btNextClicked()
 {
+  if(game.level < LEVELS.length )
+    game.level ++;
+  initLevel();
+  g.render();  
   closePopup();
 }
 
-/**-------------------------------
- *  showWinLose
- * 
- *-------------------------------*/
-function showWinLose()
-{
-  shadeEl.style.display = "block";
-  popupEl.classList.add("show");
-  g.render();
-}
 /**-------------------------------
  *  showHelp
  * 
  *-------------------------------*/
 function showHelp()
 {
-  // shadeEl.style.display = "block";
-  // popupEl.classList.add("show");
-  // g.render();
+  shadeEl.style.display = "block";
+  popupEl.classList.add("show");
+  g.render();
 
 }
 /**-------------------------------
@@ -361,9 +374,9 @@ function closePopup()
  *-------------------------------*/
 function showResetLevel()
 {
-  g.levelNameEl.innerHTML = "Reset " + 
-                              g.levelNameEl.innerText + 
-                              "<x class='roundLbl'> \u21BA </x>";
+    levelNameEl.innerHTML = "Reset " + 
+                                levelNameEl.innerText + 
+                                "<x class='roundLbl'> \u21BA </x>";
 }
 
 /**-------------------------------
