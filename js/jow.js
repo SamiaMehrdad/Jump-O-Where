@@ -15,6 +15,8 @@
 ///NOTE: For this game addressing cells by row - column is less efficient
 // so cell addressing is doing by single index
 
+///BUG: initLevel() does not reset selection and highlights
+///TODO: re-adjust code to fit in MVC pattern
 ///TODO: Show win/lose popup
 ///TODO: Show help popup
 ///TODO: adding sounds
@@ -76,6 +78,7 @@ let game =
 {
   selectedCell: null,
   level: 0,
+  started: false,
   status: null,
   totalPegs: 16,
   tries: 0,
@@ -93,15 +96,17 @@ class cell  {
 let cells = []; // this array will keep TOTALCELLS of cell object
 
 /*----- cached element references -----------------------------------*/
+let shadeEl = getElemById("shade");
+let popupEl = getElemById("popup");
 // g is main graphics object including render() , createCells() and cached elements 
 // Every graphical elements are cached inside g object, like g.cellEl[i]
 
 const g = { 
  
    cellEls : [], 
-   boardEl :  document.getElementById("innerBoard"),
-   levelNameEl : document.getElementById("levelName"),
-   levelNumEl : document.getElementById("levelNum"),
+   boardEl :      getElemById("innerBoard"),
+   levelNameEl :  getElemById("levelName"),
+   levelNumEl :   getElemById("levelNum"),
    cellBuffer: { },
   // create cell elements method A based on images------------------
   createCellsByImg : () => {
@@ -113,7 +118,6 @@ const g = {
         g.cellEls[index].setAttribute("id" , 'c'+index);
         g.cellEls[index].setAttribute("class" , "cellImg");
         g.cellEls[index].addEventListener("click", cellClicked);
-        ///TEST console.log(index);
         g.boardEl.appendChild( g.cellEls[index] );
       }    
   } ,
@@ -126,25 +130,25 @@ const g = {
       }
     
   } ,
-  // rendering starting point of each level
+  // rendering starting point of each level -------------------------
   initLevel: () => {
     g.levelNameEl.innerText = LEVELS[game.level][0];
     g.levelNumEl.innerText = `Level ${game.level+1}`;
   } ,
   // main render function -------------------------------------------
   render : () => {
-     console.log('Render fired.');
-    
-    for( let i = 0; i < TOTALCELLS; i++ ) // render pegs and landing cells
+    // render pegs and landing cells
+    for( let i = 0; i < TOTALCELLS; i++ ) 
     {
       g.cellEls[i].style.backgroundPositionX = `${SPRITRATIO * cells[i].hasPeg *2 + 
                                                   SPRITRATIO * cells[i].landing  }%`;
       
     }
+    //render selected peg, if there is any
     if(game.selectedCell != null ) //CAUTION about index 0
       g.cellEls[game.selectedCell].style.backgroundPositionX = `${SPRITRATIO * CELLSTATE.PICKED }%`;
   } ,
-
+  // show popup panels in case ---------------------------------------
   showPanel: () => {
     if( game.status === GAMESTATUS.PASSED )
       alert (" LEVEL PASSED ");
@@ -155,9 +159,22 @@ const g = {
 };
 
 
-/*----- event listeners -------------------------------------------*/
-document.getElementById("help").addEventListener("click",showHelp);
-
+/*----- event listeners -----------------------------------------------------*/
+/**-------------------------------
+ *  initEvents() Just a wrapper to help code looks cleaner
+ *  This function also is using
+ *  Return : none
+ *-------------------------------*/
+function initEvents()
+{
+  setEvent("help", "click", showHelp );
+  setEvent("levelName", "mouseenter",showResetLevel);
+  setEvent("levelName", "mouseleave",()=> g.initLevel() );
+  setEvent("levelName", "click",initLevel);
+  setEvent("btAgain", "click",btAgainClicked);
+  setEvent("btNext", "click",btNextClicked);
+}
+/*----- functions -----------------------------------------------------------------*/ 
 /**-------------------------------
  *  cellClicked() will be run when a cell is clicked
  *  This function is an event handler
@@ -174,22 +191,19 @@ function cellClicked(e)
   {
     game.selectedCell = cellIndex;
     setDestinations( cellIndex );
-    console.log("Select cell"+cellIndex );
   }
   g.render();
   game.status = checkPass();
-  console.log(game.status);
   if( game.status === GAMESTATUS.PLAYING )
     game.status = checkFail();
-  console.log(game.status);
   if( game.status !== GAMESTATUS.PLAYING ) 
-    g.showPanel();
-  //g.cellEls[clickedCellIndex].style.backgroundPositionX = `${SPRITRATIO * CELLSTATE.HILIGHT}%`; ///TEST
-  // console.log(`${ratio}%`);
+    {
+     // g.showPanel();
+      g.showWinLose();
+      initLevel();
+    }
 }
 
- 
-/*----- functions -------------------------------------------------*/ 
 /**-------------------------------
  *  initialize() will be called once in very beginning of app
  *  This function will create cell objects 
@@ -204,9 +218,8 @@ function initGame ()
     cells[i] = new cell( i );
     cells[i].hasPeg = parseInt(LEVELS[0][1][i]); //TEST: move it to level init
   }
-  console.log(cells);
   g.createCellsByImg(); ///test
-  game.level = 19; /// TODO: read saved level from file
+  game.level = 0; /// TODO: read saved level from file
   initLevel();
   g.initLevel(); // to render level number and name
   g.render();
@@ -221,12 +234,12 @@ function initLevel()
   game.totalPegs = 0;
   for( let i = 0; i< TOTALCELLS; i++ )
   {
-    let peg = parseInt(LEVELS[game.level][1][i])
+    let peg = parseInt(LEVELS[game.level][1][i]);
     cells[i].hasPeg = peg; 
     game.totalPegs += peg;
   }
   game.status = GAMESTATUS.PLAYING;
-  console.log(game);
+  g.render();
 }
 
 /**-------------------------------
@@ -242,7 +255,6 @@ function tryToMoveTo( clickedCellIndex )
     // check if clicked cell is a possible move for selected peg and there is a target peg between
       if( POSSIBLEMOVES[src][i] === clickedCellIndex && cells[TARGETPEGS[src][i]].hasPeg )
       { 
-        console.log("try to move " + i);
         //move peg from selected to dest
         cells[clickedCellIndex].hasPeg = true;
         cells[src].hasPeg = false;
@@ -288,7 +300,6 @@ function checkFail()
   for( let i = 0; i < TOTALCELLS; i++ )
    for( let j = 0; j < 2; j++ )
    {
-   //  console.log(`${i}: pig = ${cells[i].hasPeg}, target = ${cells[TARGETPEGS[i][j]].hasPeg}, dest = ${cells[POSSIBLEMOVES[i][j]].hasPeg}`);
     if ( cells[i].hasPeg && cells[TARGETPEGS[i][j]].hasPeg && !cells[POSSIBLEMOVES[i][j]].hasPeg )
         return GAMESTATUS.PLAYING;
    }
@@ -296,17 +307,93 @@ function checkFail()
 }
 
 /**-------------------------------
+ *  btAgainClicked
+ * 
+ *-------------------------------*/
+function btAgainClicked()
+{
+
+  closePopup();
+}
+
+/**-------------------------------
+ *  btNextClicked
+ * 
+ *-------------------------------*/
+function btNextClicked()
+{
+  closePopup();
+}
+
+/**-------------------------------
+ *  showWinLose
+ * 
+ *-------------------------------*/
+function showWinLose()
+{
+  shadeEl.style.display = "block";
+  popupEl.classList.add("show");
+  g.render();
+}
+/**-------------------------------
  *  showHelp
  * 
  *-------------------------------*/
 function showHelp()
 {
-  g.render();
-    // document.getElementById("shade").style.display = "inline-block";
-    // document.getElementById("popup").style.display = "block";
-    // document.getElementById("shade").style.opacity = "none";
+  // shadeEl.style.display = "block";
+  // popupEl.classList.add("show");
+  // g.render();
+
+}
+/**-------------------------------
+ *  closePopup
+ * 
+ *-------------------------------*/
+function closePopup()
+{
+  shadeEl.style.display = "none";
+  popupEl.classList.remove("show");
+}
+/**-------------------------------
+ *  showResetLevel
+ * 
+ *-------------------------------*/
+function showResetLevel()
+{
+  g.levelNameEl.innerHTML = "Reset " + 
+                              g.levelNameEl.innerText + 
+                              "<x class='roundLbl'> \u21BA </x>";
 }
 
+/**-------------------------------
+ *  getElemById(id) Make life a little easier
+ * 
+ *-------------------------------*/
+function getElemById(id)
+{
+  let result = document.getElementById(id);
+  if( !result )
+    console.log(` DEBUG WARNING! #${id} element is undefined.`);
+  return result;
+}
 
+/**-------------------------------
+ *  setEvent(id , type, funcName) Make life a little easier
+ * 
+ *-------------------------------*/
+function setEvent(id , type, funcName)
+{
+  let elem = document.getElementById(id);
+  if( !elem )
+  {
+    console.log(` DEBUG WARNING! Eventlistener for #${id} is undefined.`);
+    return false;
+  }
+    elem.addEventListener( type , funcName );
+    return true;
+}
 
-initGame();
+//----------------------------------------- STARTING POINT -------------------------------------
+initEvents(); // initialize event handlers
+initGame();   // and initialize the game. event handlers will take care of rest of the app
