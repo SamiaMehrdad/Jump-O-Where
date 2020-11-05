@@ -13,7 +13,7 @@
     <div id="shade"></div>
     <div id = "title">
         <h1>J</h1><h2>ump-</h2><h1>O</h1><h2>-</h2><h1>W</h1><h2>here!</h2>
-        <h3 id="help"> How to play?</h3>
+        <h3 id="helpLabel"> How to play?</h3>
     </div>
     <div id = "wrap" >
         <div id = "board">
@@ -25,24 +25,26 @@
             <p id = "levelName" class = "medTxt"></p>
         </div>
     </div>
-    <div id = "help">
-        <h2>How to play Jump-O-Where</h2>
-        <p> Jump one peg over another into an empty hole on the other side, 
-            will remove the jumped peg from the board. Pegs cannot jump diagonally, 
-            nor over more than one peg at a time. Reduce pegs to one
+    <div id = "helpPanel" class="popupPanel">
+        <br/>
+        <h2>How to play</h2>
+        <p id = "hText"> Jump one peg over another into an empty hole on the other side, 
+            will remove the jumped peg from the board. Pegs cannot jump diagonally 
+            nor over more than one peg at a time.<br/>Reduce pegs to one
             to pass each one of 20 levels, from easy to difficult.<br/>
             Click on any peg and then highlighted hole, if there is any, to do jumping.
-    </div>
-    <div id = "popup">
-        <p id = "popMsg"></p>
-        <p id = "popLevelNum" class = "bigTxt">LEVEL 1</p>
-        <p id = "popLevelName" class = "medTxt">CRAZY</p>
+        </p>
+        <button id="btClose" class = "btn" >Got it</button>
+    </div>  
+    <div id = "winLosePanel" class="popupPanel">
+        <x id = "popMsg"></x>
+        <x id = "popLevelNum" class = "bigTxt">LEVEL 1</x>
+        <x id = "popLevelName" class = "medTxt">CRAZY</x>
         
         <div id = "popup-bottom">
             <button id="btAgain" class = "btn">Try again</button>
             <button id="btNext" class = "btn" >Next</button>
         </div>
-        
     </div>
     
 </body>

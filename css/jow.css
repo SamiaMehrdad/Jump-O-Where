@@ -77,29 +77,35 @@ h1{
     color: var(--pegSelect);
 }
 #title:hover > #help { visibility: visible; }
+/* .rolling{
+ 
+}
+.rolling.show{
 
-#popup{
-    /* width: 60vw;  */
-    width: 0;
-    /* height: calc( 80vh - 10vw ); */
-    height: 0;
-    
+} */
+#winLosePanel{
     background-color: var(--pegBody);
-
+    transition:  all .5s;
+    width: 0;
+    height: 0;
+    display: none;
+    /* height: calc( 80vh - 10vw ); */
+    /* transition:  all .5s; */
+    right: 20vw;
     border-radius: 20px;
     box-shadow: 0 10px 20px #000;
     overflow: hidden;
     position: fixed;
     top: 20%;
-    transition:  all .5s;
+    /* transition:  all .5s; */
     color: var(--pegSelect);
     border: 1px solid  var(--pegBody);
-    /* display: none; */
 }
-#popup.show{
+#winLosePanel.show{
     width: 60vw;
     height: calc( 80vh - 10vw );
-    right: 20vw;
+    display: block;
+    transition:  all .5s;
     transform: rotate( 360deg );
 }
 
@@ -113,7 +119,7 @@ h1{
 }
 #popLevelNum{
     margin: 2vh auto 0;
-
+    display: block;
 }
 #popLevelName{
     color: #eec;
@@ -185,6 +191,7 @@ h1{
 #levelNum , #levelName {
    /* position: absolute; /* Strange! All other values push msPanel down! just absolute works*/
     color: var(--board);
+
     /* margin: 0 auto; */
 }
 #levelNum{
@@ -250,4 +257,17 @@ h1{
 .cellImg:hover{
     /* outline: 2px solid #bbb; */
     filter: brightness(1.1);
+}
+#helpPanel{
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    /* position: fixed; */
+    /* display: none; */
+    margin: 0 auto;
+}
+p{
+    font-size: calc(3.8vh - 15px);
+    margin: 0 5vw;
+    text-align: center;
 }

@@ -81,6 +81,7 @@ const game = {
   level: 0,
   started: false,
   status: null,
+  paused: false,
   totalPegs: 16,
   tries: 0,
   time: 0,
@@ -98,10 +99,11 @@ let cells = []; // this array will keep TOTALCELLS of cell object
 
 /*----- cached element references -----------------------------------*/
 const shadeEl = getElemById("shade");
-const popupEl = getElemById("popup");
+const popupEl = getElemById("winLosePanel");
 const popMsgEl = getElemById("popMsg");
 const popLevNameEl = getElemById("popLevelName");
 const popLevNumEl = getElemById("popLevelNum");
+const helpPopEl = getElemById("helpPanel");
 const btNextEl = getElemById("btNext");
 const levelNameEl =  getElemById("levelName");
 const levelNumEl =   getElemById("levelNum");
@@ -185,12 +187,13 @@ const g = {
  *-------------------------------*/
 function initEvents()
 {
-  setEvent("help", "click", showHelp );
+  setEvent("helpLabel", "click", showHelp );
   setEvent("levelName", "mouseenter",showResetLevel);
   setEvent("levelName", "mouseleave",()=> g.renderLevelLables() );
   setEvent("levelName", "click",initLevel);
   setEvent("btAgain", "click",btAgainClicked);
   setEvent("btNext", "click",btNextClicked);
+  setEvent("btClose", "click", btCloseHelpClicked );
 }
 /*----- functions -----------------------------------------------------------------*/ 
 /**-------------------------------
@@ -354,10 +357,22 @@ function btNextClicked()
  *-------------------------------*/
 function showHelp()
 {
+  console.log("Show help");
   shadeEl.style.display = "block";
-  popupEl.classList.add("show");
+  helpPopEl.classList.add("show");
+  game.paused = true;
   g.render();
+}
 
+/**-------------------------------
+ *  btCloseHelpClicked
+ * 
+ *-------------------------------*/
+function btCloseHelpClicked()
+{
+  shadeEl.style.display = "none";
+  helpPopEl.classList.remove("show");
+  game.paused = false;
 }
 /**-------------------------------
  *  closePopup
