@@ -1,6 +1,6 @@
 /******************************************************
- * Jump-O-Where, a browser based solitaire game
- * Created by: Mehrdad Samia 2020 GA-SEI project
+ * * Jump-O-Where, a browser based solitaire game
+ * * Created by: Mehrdad Samia 2020 GA-SEI project
  * Software implementation license: GPL 3.0
  * Original game designed by Mehrdad Samia, based
  * on ancient chinese peg solitaire puzzle, adopted
@@ -8,19 +8,20 @@
  * --------------------------------------------------
  * Project files: index.html , jow.css , this file
  * Resources : ./img , ./audio 
- * Repo:  https://github.com/SamiaMehrdad/Jump-O-Where
+ * * Repo:  https://github.com/SamiaMehrdad/Jump-O-Where
  * --------------------------------------------------
- * MVC pattern following
+ * * MVC pattern following
 *******************************************************/
-///NOTE: For this game addressing cells by row - column is less efficient
-// so cell addressing is doing by single index
+/* 
+* NOTE: 
+ For this game addressing cells by row - column is less efficient
+ so cell addressing is doing by single index 
+*/
 
-///BUG: initLevel() does not reset selection and highlights
-///TODO: Implement level.start
-///TODO: Show help popup
-///TODO: adding sounds
+///TODO: add motivation prompts
 ///TODO: check for js/css disabled
 ///TODO: disable right-click
+///TODO: add time based color fading effect
 
 /*----- constants ---------------------------------------------------*/
 const BOARDDIM = 4; // number of 
@@ -71,10 +72,10 @@ const LEVELS = [  // 20 levels name and init patterns
   ["Boomerang",   "1110111100110011"],  //17
   ["Scorpion",    "0101011100101110"],  //18
   ["Basket",      "0110100111111111"],  //19
-  ["The Last Rock","0111110111111111"]   //20
+  ["The Last Rock","0111110111111111"]  //20
 ];
 
-const SPRITRATIO = 33.33; // used for rendering proper image of cells
+const SPRITRATIO = 33.33; // used as x offset step to render proper image for cells
 /*----- app's state (variables) -------------------------------------*/
 const game = {
   selectedCell: null,
@@ -107,8 +108,17 @@ const helpPopEl = getElemById("helpPanel");
 const btNextEl = getElemById("btNext");
 const levelNameEl =  getElemById("levelName");
 const levelNumEl =   getElemById("levelNum");
-// g is main graphics object including render() , createCells() and cached elements 
-// Every graphical elements are cached inside g object, like g.cellEl[i]
+const sndGrab = new Audio('./audio/grab1.mp3');
+const sndMove = new Audio('./audio/move1.mp3');
+const sndRelease = new Audio('./audio/release1.mp3');
+const sndOk = new Audio('./audio/ok1.mp3');
+const sndFail = new Audio('./audio/fail1.mp3');
+const sndWin = new Audio('./audio/win1.mp3');
+const sndback = new Audio('./audio/background1.mp3');
+const sndWoosh = new Audio('./audio/woosh1.mp3');
+
+/* g is main graphics object including render() , createCells() and cached elements 
+   Every graphical elements are cached inside g object, like g.cellEl[i] */
 
 const g = { 
  
@@ -144,12 +154,9 @@ const g = {
   } ,
   // main render function -------------------------------------------
   render : () => {
-    // render pegs and landing cells
-    for( let i = 0; i < TOTALCELLS; i++ ) 
-    {
+    for( let i = 0; i < TOTALCELLS; i++ ) // render pegs and landing cells
       g.cellEls[i].style.backgroundPositionX = `${SPRITRATIO * cells[i].hasPeg *2 + 
                                                   SPRITRATIO * cells[i].landing  }%`;
-    }
     //render selected peg, if there is any
     if(game.selectedCell != null ) //CAUTION about index 0
       g.cellEls[game.selectedCell].style.backgroundPositionX = `${SPRITRATIO * CELLSTATE.PICKED }%`;
@@ -182,8 +189,8 @@ const g = {
 /*----- event listeners -----------------------------------------------------*/
 /**-------------------------------
  *  initEvents() Just a wrapper to help code looks cleaner
- *  This function also is using
- *  Return : none
+ *  This function also is using setEvent() to looks more clean.
+ *  * Return : none
  *-------------------------------*/
 function initEvents()
 {
@@ -197,9 +204,9 @@ function initEvents()
 }
 /*----- functions -----------------------------------------------------------------*/ 
 /**-------------------------------
- *  cellClicked() will be run when a cell is clicked
- *  This function is an event handler
- *  Return : none
+ *  cellClicked() Will be run when a cell is clicked
+ *  * event handler
+ *  * return : none
  *-------------------------------*/
 function cellClicked(e)
 {
@@ -212,6 +219,7 @@ function cellClicked(e)
   {
     game.selectedCell = cellIndex;
     setDestinations( cellIndex );
+    sndGrab.play();
   }
   // Now check if level is passed or failed 
   game.status = checkPass();
@@ -221,11 +229,11 @@ function cellClicked(e)
 }
 
 /**-------------------------------
- *  initialize() will be called once in very beginning of app
+ *  initialize() Will be called once in very beginning of app.
  *  This function will create cell objects 
- *  and initialize game states variables. Level state variables
- *  will be initialized in initLevel function
- *  Return : none
+ *  and initialize game states variables.
+ *  * Level state variables will be initialized in initLevel function.
+ *  * Return : none
  *-------------------------------*/
 function initGame ()
 {
@@ -247,6 +255,7 @@ function initGame ()
  *-------------------------------*/
 function initLevel()
 {
+  sndRelease.play();
   game.totalPegs = 0;
   for( let i = 0; i< TOTALCELLS; i++ )
   {
@@ -263,8 +272,10 @@ function initLevel()
 }
 
 /**-------------------------------
- *  tryToMoveTo
- *  this function will be called when clickedCellIndex IS EMPTY
+ *  tryToMoveTo()
+ *  Will be called every time user press 
+ *  an empty cell and try to move a peg there.
+ *  * return: none
  *-------------------------------*/
 function tryToMoveTo( clickedCellIndex )
 {
@@ -275,6 +286,7 @@ function tryToMoveTo( clickedCellIndex )
     // check if clicked cell is a possible move for selected peg and there is a target peg between
       if( POSSIBLEMOVES[src][i] === clickedCellIndex && cells[TARGETPEGS[src][i]].hasPeg )
       { 
+        sndMove.play();
         //move peg from selected to dest
         cells[clickedCellIndex].hasPeg = true;
         cells[src].hasPeg = false;
@@ -289,8 +301,9 @@ function tryToMoveTo( clickedCellIndex )
 }
 /**-------------------------------
  *  setDestinations(cellIndex) 
- *  This function set landing property of cells if they can
- *  be destination for selected cell
+ *  Set landing property of all cells which can
+ *  be destination for given cell.
+ *  * return: none
  *-------------------------------*/
 function setDestinations( cellIndex )
 {
@@ -303,18 +316,21 @@ function setDestinations( cellIndex )
     }
 }
 /**-------------------------------
- *  checkPass
- * 
+ *  checkPass() Check if level is passed
+ * * return: GAMESTATUS.PLAYING or GAMESTATUS.PASSED
  *-------------------------------*/
 function checkPass()
 {
   if( game.totalPegs < 2 )
-   return GAMESTATUS.PASSED;
+  {
+    sndOk.play();
+    return GAMESTATUS.PASSED;
+  }
   return GAMESTATUS.PLAYING; 
 }
 /**-------------------------------
- *  checkFail
- * 
+ *  checkFail() Check if level is failed
+ * * return: GAMESTATUS.PLAYING or GAMESTATUS.FAILED
  *-------------------------------*/
 function checkFail()
 {
@@ -324,26 +340,33 @@ function checkFail()
     if ( cells[i].hasPeg && cells[TARGETPEGS[i][j]].hasPeg && !cells[POSSIBLEMOVES[i][j]].hasPeg )
         return GAMESTATUS.PLAYING;
    }
+  sndFail.play(); 
   return GAMESTATUS.FAILED;
 }
 
 /**-------------------------------
- *  btAgainClicked
- * 
+ *  btAgainClicked() Will be called when 'try again' 
+ *  button in a popup panel is clicked
+ *  * event handler
+ *  * return: none
  *-------------------------------*/
 function btAgainClicked()
 {
+  sndRelease.play();
   initLevel();
   g.render();
   closePopup();
 }
 
 /**-------------------------------
- *  btNextClicked
- * 
+ *  btNextClicked() Will be called when 'next' 
+ *  button in a popup panel is clicked
+ *  * event handler
+ *  * return: none
  *-------------------------------*/
 function btNextClicked()
 {
+  sndWin.play();
   if(game.level < LEVELS.length )
     game.level ++;
   initLevel();
@@ -352,31 +375,36 @@ function btNextClicked()
 }
 
 /**-------------------------------
- *  showHelp
- * 
+ *  showHelp() Shows help panel
+ *  * return: none
  *-------------------------------*/
 function showHelp()
 {
-  console.log("Show help");
   shadeEl.style.display = "block";
   helpPopEl.classList.add("show");
   game.paused = true;
   g.render();
+  sndback.loop = "auto-loop";
+  sndback.play();
 }
 
 /**-------------------------------
- *  btCloseHelpClicked
- * 
+ *  btCloseHelpClicked()
+ *  * event handler
+ *  * return: none
  *-------------------------------*/
 function btCloseHelpClicked()
 {
   shadeEl.style.display = "none";
   helpPopEl.classList.remove("show");
   game.paused = false;
+  sndback.pause();
+  sndback.currentTime = 0;
+  sndRelease.play();
 }
 /**-------------------------------
- *  closePopup
- * 
+ *  closePopup() Close popup panel
+ *  * return: none
  *-------------------------------*/
 function closePopup()
 {
@@ -384,19 +412,23 @@ function closePopup()
   popupEl.classList.remove("show");
 }
 /**-------------------------------
- *  showResetLevel
- * 
+ *  showResetLevel() Shows reset label when mouse
+ *  hovers on level name
+ *  * event handler
+ *  * return: none
  *-------------------------------*/
 function showResetLevel()
 {
-    levelNameEl.innerHTML = "Reset " + 
-                                levelNameEl.innerText + 
-                                "<x class='roundLbl'> \u21BA </x>";
+  sndWoosh.play();
+  levelNameEl.innerHTML = "Reset " + 
+                            levelNameEl.innerText + 
+                            "<x class='roundLbl'> \u21BA </x>";
 }
 
 /**-------------------------------
- *  getElemById(id) Make life a little easier
- * 
+ *  getElemById(id) Make life a little easier.
+ *  Show useful console log on errors
+ *  *return: DOM element
  *-------------------------------*/
 function getElemById(id)
 {
@@ -407,8 +439,10 @@ function getElemById(id)
 }
 
 /**-------------------------------
- *  setEvent(id , type, funcName) Make life a little easier
- * 
+ *  setEvent(id , type, funcName) Make life a little easier.
+ *  Set event handler for given id.
+ *  Show useful console log on errors
+ *  *return: true if succeed
  *-------------------------------*/
 function setEvent(id , type, funcName)
 {
