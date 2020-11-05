@@ -4,23 +4,25 @@
     --board: #ba9; --borders: #431; --overlay: rgba(0,0,0,.5);
     --warning: #f55;
   }
+/* A suitable funny font thanks to google fonts*/
   @font-face {
     font-family: 'HennyPeny';
     src: url('./HennyPenny-Regular.ttf');
   }
+/* Making sure unnecessary spaces are removed everywhere */  
 * {
     padding: 0;
     margin: 0;
 }
+/* Global object styling */
 body{
-    user-select: none;
+    user-select: none; /* prevent ugly element selecting */
     background-color: var(--backColor);
     text-align: center;
-    align-items: center;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS';
     overflow: hidden;
 }
-
+/* Making funny logo with h1 and h2 */
 h1, h2{
     font-family: 'HennyPeny';
     color: var(--pegBody);
@@ -42,102 +44,7 @@ h1{
     font-family: 'HennyPeny';
     text-shadow: 0 5px 10px #000;
 }
-#shade{
-    position: fixed;
-    display: none;
-    width: 100vw;
-    height: 100vh;
-    left: 0;
-    background-color: rgba(0,0,0,.5);
-}
-#band{
-    position: absolute;
-    height: 100px;
-    width: 100%;
-    top: calc(100px + 12vw);
-    background-color: var(--pegBody);
-    z-index: -1;
-}
-#title{
-    cursor: default;
-    display: inline-block;
-    margin: 4%;
-}
-#help{
-    cursor: pointer;
-    margin: -5%;
-    text-decoration-line: underline;
-    letter-spacing: .8vw;
-    font-size: calc(1.5vw+15px);
-    visibility: hidden;
-    color: var(--pegBody);
-    
-}
-#help:hover{
-    color: var(--pegSelect);
-}
-#title:hover > #help { visibility: visible; }
-/* .rolling{
- 
-}
-.rolling.show{
-
-} */
-#winLosePanel{
-    background-color: var(--pegBody);
-    transition:  all .5s;
-    width: 0;
-    height: 0;
-    display: none;
-    /* height: calc( 80vh - 10vw ); */
-    /* transition:  all .5s; */
-    right: 20vw;
-    border-radius: 20px;
-    box-shadow: 0 10px 20px #000;
-    overflow: hidden;
-    position: fixed;
-    top: 20%;
-    /* transition:  all .5s; */
-    color: var(--pegSelect);
-    border: 1px solid  var(--pegBody);
-}
-#winLosePanel.show{
-    width: 60vw;
-    height: calc( 80vh - 10vw );
-    display: block;
-    transition:  all .5s;
-    transform: rotate( 360deg );
-}
-
-#popup-bottom{
-    width: 100%;
-    height: 40%;
-    background-color: var(--backColor);
-    background-color:#6f5e4c;
-    position:absolute; 
-    bottom:0;
-}
-#popLevelNum{
-    margin: 2vh auto 0;
-    display: block;
-}
-#popLevelName{
-    color: #eec;
-}
-#popMsg{
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    font-size: calc( 45px + 3.3vw);
-    color:  var(--backColor);
-    position: absolute;
-    /* top: calc( 1vw + 40%); */
-    top: calc( 55% - 5vw);
-    left: calc( 26vw - 70px);
-    transform: scale(1, 1.5);
-    opacity: .5;
-}
-#btAgain{
-
-}
+/* my simple candy buttons class */
 .btn{
     display: inline-block;
     width: 20%;
@@ -155,7 +62,6 @@ h1{
     background-image: -webkit-linear-gradient(top, rgba(255,255,255,1), rgba(255,255,255,0));
     background-image: linear-gradient(top, rgba(255,255,255,1), rgba(255,255,255,0));
 }
-
 .btn:hover {
     background-color: #850;
     color: #fff;
@@ -166,6 +72,134 @@ h1{
     background-color: #321;
     color:  var(--borders);
 }
+/* closing button for help panel*/
+#btClose{
+    height: max(40px, 10vh);
+    width: max(150px, 20vw);
+    margin: min(10vw , 50px, 10vh)  auto;
+}
+/*main object of board game*/
+.cell{
+   width: 25%; /*Because there is 4 cells in a row*/
+   height: 25%; /* and 4 cells in a column */
+}
+/*main image includes possible peg conditions for ech cell */
+/*JS will handle background-position-x */
+.cellImg{
+   width: 25%;
+   height: 25%;
+   background-image: url("../img/JOWcells.png"); 
+   background-size: cover;
+   display: inline-block;
+   border-radius: 40px;
+   cursor: pointer;
+   
+}
+.cellImg:hover{
+   filter: brightness(1.1);
+}
+/* a covering dark curtain for popup panels */
+#shade{
+    position: fixed;
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    background-color: rgba(0,0,0,.5);
+}
+/* little graphical band in background */
+#band{
+    position: absolute;
+    height: 100px;
+    width: 100%;
+    top: calc(100px + 12vw);
+    background-color: var(--pegBody);
+    z-index: -1;
+}
+/* Game title styling */
+#title{
+    cursor: default;
+    display: inline-block;
+    margin: 4%;
+}
+/* how-to-play link */
+#helpLabel{
+    cursor: pointer;
+    margin: -5%;
+    text-decoration-line: underline;
+    letter-spacing: .8vw;
+    font-size: calc(1.5vw+15px);
+    visibility: hidden;
+    color: var(--pegBody);
+}
+#helpLabel:hover{
+    color: var(--pegSelect);
+}
+/*show help link when mouse hovers the title*/
+#title:hover > #helpLabel { visibility: visible; }
+
+/*  popup panels class*/
+.popupPanel{
+    border-radius: 20px;
+    box-shadow: 0 10px 20px #000;
+    overflow: hidden;
+    position: fixed;
+    top: 20%;
+    color: var(--pegSelect);
+    border: 1px solid  var(--pegBody);
+    width: 0; /*Js handled*/
+    height: 0; /*Js handled*/
+}
+#helpPanel{
+    background-color: rgba(30, 20, 0, 0.8);
+    transition:  height 1s;
+}
+
+#hText{
+    font-size: calc( 28px - .17vw);
+    padding: 2vw 4vw;
+} 
+/* a popup panel which will be appeared in level pass/fail */ 
+#winLosePanel{
+    background-color: var(--pegBody);
+    transition:  all .5s;
+}
+/* will add or remove by JS to show/hide panels */
+.show {
+    width: 60vw;
+    height: calc( 80vh - 10vw );
+    right: 20vw;
+    transform: rotate( 360deg );
+}
+/*button portion of pass/fail popup panel*/
+#popup-bottom{
+    width: 100%;
+    height: 40%;
+    background-color: var(--backColor);
+    background-color:#6f5e4c;
+    position:absolute; 
+    bottom:0;
+}
+#popLevelNum{
+    margin: 2vh auto 0;
+}
+#popLevelName{
+    display: block;
+    color: #eec;
+}
+/* big prompt for pass/fail */
+#popMsg{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: calc( 45px + 3.3vw);
+    color:  var(--backColor);
+    position: absolute;
+    top: calc( 1vw + 40%);
+    top: calc( 55% - 5vw);
+    left: calc( 26vw - 70px);
+    transform: scale(1, 1.5);
+    opacity: .5;
+}
+/********************** main board ***********************/
 #wrap{
     width:  90vw;
     height: 400px;
@@ -181,6 +215,7 @@ h1{
     padding: 0;
     /* outline: 1px solid #f00; */
 }
+/* a wrapper for level number and name */
 #topText{
     /* border: 1px solid green; */
     position: absolute;
@@ -191,7 +226,6 @@ h1{
 #levelNum , #levelName {
    /* position: absolute; /* Strange! All other values push msPanel down! just absolute works*/
     color: var(--board);
-
     /* margin: 0 auto; */
 }
 #levelNum{
@@ -202,6 +236,7 @@ h1{
     transition: color .5s;
 
 }
+/* level num can trigger level reset label */
 #levelName:hover{
     color: var(--warning);
     text-shadow: 0 0 5px #000;
@@ -213,6 +248,7 @@ h1{
     opacity: .5;
     font-size: 28px;
 }
+/* a class to show fancy rounded reset symbol */
 .roundLbl{
     font-size: 40px;
     color: var(--warning);
@@ -221,8 +257,7 @@ h1{
     border-radius: 30px;
     border: 2px solid var(--warning);
 }
-
-
+/* main playing board facade */
 #board{
     border-radius: 20px;
     background-color: #858585;
@@ -231,43 +266,10 @@ h1{
     background-repeat: repeat;
     
 }
-
+/* central part of board containing cells */
 #innerBoard{
     /* outline: 1px solid #0ff; */
     width: 80%;
     height: 80%;
     margin: 10%;
-}
-.cell{
-     /* outline: 1px solid #000;  */
-    width: 25%;
-    height: 25%;
-
-}
-.cellImg{
-    width: 25%;
-    height: 25%;
-    background-image: url("../img/JOWcells.png"); 
-    background-size: cover;
-    background-position-x: 0;
-    display: inline-block;
-    border-radius: 40px;
-    cursor: pointer;
-}
-.cellImg:hover{
-    /* outline: 2px solid #bbb; */
-    filter: brightness(1.1);
-}
-#helpPanel{
-    width: 100%;
-    height: 100%;
-    color: #fff;
-    /* position: fixed; */
-    /* display: none; */
-    margin: 0 auto;
-}
-p{
-    font-size: calc(3.8vh - 15px);
-    margin: 0 5vw;
-    text-align: center;
 }
