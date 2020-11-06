@@ -36,5 +36,5 @@ There is some specifications about this implementation:
 <br/><br/>
 ## Copyrights :
 ---
-All graphics, layout designs and necessery images are created by myself.
+All graphics, layout designs and necessary images are created by myself.
 Some of sound effects are downloaded from [freesound.org](https://freesound.org/) and edited by me using non commercial version of [Wave Pad](https://www.nch.com.au/wavepad/index.html)

@@ -18,11 +18,6 @@
  so cell addressing is doing by single index 
 */
 
-///TODO: add motivation prompts
-///TODO: check for js/css disabled
-///TODO: disable right-click
-///TODO: add time based color fading effect
-
 /*----- constants ---------------------------------------------------*/
 const BOARDDIM = 4; // number of 
 const TOTALCELLS = BOARDDIM * BOARDDIM;
@@ -39,7 +34,7 @@ const GAMESTATUS = {
                     FAILED: 2,
                     PAUSED: 3,
                     FINISHED: 4, //all levels are passed
-}
+                  };
 // Two possible move for each cell${i}
 const POSSIBLEMOVES = [ [2,8], [3,9], [0,10], [1,11],
                         [6,12], [7,13], [4,14], [5,15],
@@ -456,6 +451,11 @@ function setEvent(id , type, funcName)
     return true;
 }
 
-//----------------------------------------- STARTING POINT -------------------------------------
+//----------------------------------------- APP STARTING POINT -------------------------------------
 initEvents(); // initialize event handlers
 initGame();   // and initialize the game. event handlers will take care of rest of the app
+
+///TODO: add motivation prompts
+///TODO: check for js/css disabled
+///TODO: disable right-click
+///TODO: add time based color fading effect
