@@ -9,12 +9,15 @@
     <script defer src="js/jow.js"></script>
 </head>
 <body>
-    <div id="band"></div>
+    <!-- some graphical objects -->
+    <div id="band"></div> 
     <div id="shade"></div>
+    <!-- making logo with pure html avoid using image -->
     <div id = "title">
         <h1>J</h1><h2>ump-</h2><h1>O</h1><h2>-</h2><h1>W</h1><h2>here!</h2>
         <h3 id="helpLabel"> How to play?</h3>
     </div>
+    <!-- main wrapper contains board and side message panel -->
     <div id = "wrap" >
         <div id = "board">
             <div id = "innerBoard">
@@ -25,6 +28,7 @@
             <p id = "levelName" class = "medTxt"></p>
         </div>
     </div>
+    <!-- help panel. hidden at the start, will be visible when user press ho-to-play -->
     <div id = "helpPanel" class="popupPanel">
         <br/>
         <h2>How to play</h2>
@@ -36,16 +40,15 @@
         </p>
         <button id="btClose" class = "btn" >Got it</button>
     </div>  
+    <!-- win/lose panel. Normally invisible till win/lose situation -->
     <div id = "winLosePanel" class="popupPanel">
         <x id = "popMsg"></x>
-        <x id = "popLevelNum" class = "bigTxt">LEVEL 1</x>
-        <x id = "popLevelName" class = "medTxt">CRAZY</x>
-        
+        <x id = "popLevelNum" class = "bigTxt"></x>
+        <x id = "popLevelName" class = "medTxt"></x>
         <div id = "popup-bottom">
             <button id="btAgain" class = "btn">Try again</button>
             <button id="btNext" class = "btn" >Next</button>
         </div>
-    </div>
-    
+    </div>   
 </body>
 </html>

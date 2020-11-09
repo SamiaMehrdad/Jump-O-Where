@@ -83,7 +83,7 @@ h1{
    width: 25%; /*Because there is 4 cells in a row*/
    height: 25%; /* and 4 cells in a column */
 }
-/*main image includes possible peg conditions for ech cell */
+/*main image includes possible peg conditions for each cell */
 /*JS will handle background-position-x */
 .cellImg{
    width: 25%;
@@ -193,7 +193,6 @@ h1{
     font-size: calc( 45px + 3.3vw);
     color:  var(--backColor);
     position: absolute;
-    top: calc( 1vw + 40%);
     top: calc( 55% - 5vw);
     left: calc( 26vw - 70px);
     transform: scale(1, 1.5);
@@ -276,12 +275,40 @@ h1{
     #board{
         margin: 70% 0 0 0;
     }
+    .show {
+        width: 90vw;
+        height: calc( 80vh - 10vw );
+        right: 5vw;
+    }
+    .btn{
+        font-size: 20px;
+        width: 35%;
+    }
+    .roundLbl{
+        font-size: 20px;
+    }
+    #popMsg{
+        left: 15%;
+        font-size: 80px;
+        top: 40%;
+    }
 }
-@media only screen and (orientation: landscape) and (max-width: 820px)
+@media only screen and (orientation: landscape) and (max-height: 450px)
 {
     #board , #msgPanel {
     width: 30vw;
     height: 30vw;
-     margin: -5% 5%;   
+     margin: -5% 5%; 
+      
+    }
+    .show {
+        width: 90vw;
+        height: 90%;
+        top: 5%;
+        right: 5vw;
+    }
+
+    #popMsg{
+        left: 35%;
     }
 }

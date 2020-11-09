@@ -19,7 +19,7 @@
 */
 
 /*----- constants ---------------------------------------------------*/
-const BOARDDIM = 4; // number of 
+const BOARDDIM = 4; // number of cells in each direction
 const TOTALCELLS = BOARDDIM * BOARDDIM;
  // Possible state of each single cell
 const CELLSTATE = {
@@ -101,8 +101,8 @@ const popLevNameEl = getElemById("popLevelName");
 const popLevNumEl = getElemById("popLevelNum");
 const helpPopEl = getElemById("helpPanel");
 const btNextEl = getElemById("btNext");
-const levelNameEl =  getElemById("levelName");
-const levelNumEl =   getElemById("levelNum");
+const levelNameEl = getElemById("levelName");
+const levelNumEl = getElemById("levelNum");
 const sndGrab = new Audio('./audio/grab1.mp3');
 const sndMove = new Audio('./audio/move1.mp3');
 const sndRelease = new Audio('./audio/release1.mp3');
@@ -120,6 +120,7 @@ const g = {
    cellEls : [], 
    boardEl : getElemById("innerBoard"),
    cellBuffer: { },
+
   // create cell elements method A based on images------------------
   createCellsByImg : () => {
     for( let i = 0; i < BOARDDIM; i++ )
